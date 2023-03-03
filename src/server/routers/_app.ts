@@ -21,8 +21,8 @@ export const appRouter = router({
         email: z.string(),
       })
     )
-    .query(async ({ input }) => {
-      const user = await prisma.user.create({
+    .mutation(async ({ input, ctx }) => {
+      const user = await ctx.prisma.user.create({
         data: {
           name: input.name,
           email: input.email,
