@@ -1,8 +1,22 @@
-import { inferAsyncReturnType } from "@trpc/server";
-import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import { prisma } from "../server/db";
+import * as trpc from '@trpc/server'
+import { getAuth } from '@clerk/nextjs/server'
+import type { SignedInAuthObject, SignedOutAuthObject } from '@clerk/nextjs/dist/api'
 
-export function createContext({ req, resHeaders }: FetchCreateContextFnOptions) {
-  return { req, resHeaders, prisma };
+import { prisma } from './db'
+
+interface AuthContext {
+  auth: SignedInAuthObject | SignedOutAuthObject
 }
-export type Context = inferAsyncReturnType<typeof createContext>;
+
+const createInnerTRPCContext = ({ auth }: AuthContext) => {
+  return {
+    auth,
+    prisma,
+  }
+}
+
+export const createTRPCContext = async (opts: any) => {
+  return createInnerTRPCContext({ auth: getAuth(opts.req) })
+}
+
+export type Context = trpc.inferAsyncReturnType<typeof createTRPCContext>
