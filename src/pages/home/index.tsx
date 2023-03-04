@@ -4,28 +4,27 @@ import Link from 'next/link'
 import { ChangeEvent, FormEvent, useState } from 'react'
 
 const Home = () => {
-  const hello = trpc.hello.useQuery({ text: 'client' })
-  const user = trpc.createUser.useMutation()
-  const users = trpc.getAllUsers.useQuery()
+  const post = trpc.createPost.useMutation()
+  const posts = trpc.getMyPosts.useQuery()
 
-  const [name, setName] = useState<string>('')
-  const [email, setEmail] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
+  const [content, setContent] = useState<string>('')
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
     const inputName = e.target.name
-    if (inputName === 'name') {
-      setName(e.target.value)
-    } else if (inputName === 'email') {
-      setEmail(e.target.value)
+    if (inputName === 'title') {
+      setTitle(e.target.value)
+    } else if (inputName === 'content') {
+      setContent(e.target.value)
     }
   }
 
   const createUser = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (name.length && email.length) {
+    if (title.length && content.length) {
       try {
-        const res = user.mutate({ name, email })
+        const res = post.mutate({ title, content })
       } catch (e) {
         console.log(e, 'error')
       }
@@ -36,8 +35,8 @@ const Home = () => {
 
   const { userId } = useAuth()
 
-  if (!hello.data && !users.data) {
-    return <div>Loading...</div>
+  if (!posts.data) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>
   }
   return (
     <div className="p-4">
@@ -46,41 +45,40 @@ const Home = () => {
           {'< Index'}
         </Link>
       </div>
-      <h1 className="m-1 text-2xl font-bold">{hello?.data?.greeting}</h1>
 
       {!!userId && (
         <form onSubmit={(e) => createUser(e)}>
           <input
             className="border m-1 p-1 rounded"
             type="text"
-            name="name"
-            placeholder="name"
+            name="title"
+            placeholder="Title"
             onChange={(e) => handleInputChange(e)}
           />
           <input
             className="border m-1 p-1 rounded"
             type="text"
-            name="email"
-            placeholder="email"
+            name="content"
+            placeholder="Content"
             onChange={(e) => handleInputChange(e)}
           />
           <input
             className="border m-1 p-2 rounded bg-black text-white hover:cursor-pointer"
             type="submit"
-            value="create user"
+            value="Create Post"
           />
         </form>
       )}
       {!!userId &&
-        !!users?.data?.length &&
-        users?.data?.map((user, key) => (
+        !!posts?.data?.length &&
+        posts?.data?.map((post, key) => (
           <div key={key} className="border m-2 p-2">
             <p>
-              <strong>name: </strong>
-              {user.name}
+              <strong>Title: </strong>
+              {post.title}
             </p>
             <p>
-              <strong>email:</strong> {user.email}
+              <strong>Content:</strong> {post.content}
             </p>
           </div>
         ))}

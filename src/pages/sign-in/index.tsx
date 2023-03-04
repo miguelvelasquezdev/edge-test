@@ -1,4 +1,5 @@
-import { useAuth, useSignIn } from '@clerk/nextjs'
+import { trpc } from '@/utils/trpc'
+import { useAuth, useSignIn, useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FormEvent, useEffect, useState } from 'react'
@@ -13,7 +14,8 @@ export default function SignInPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (userId) router.push('/')
+    if (!userId) return
+    router.push('/')
   }, [userId])
 
   async function submit(e: FormEvent<HTMLFormElement>) {

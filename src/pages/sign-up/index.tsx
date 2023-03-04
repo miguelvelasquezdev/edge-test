@@ -18,7 +18,9 @@ export default function SignInPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (userId) router.push('/')
+    if (!userId) return
+    createUser.mutate({ id: userId, name: firstName, email: emailAddress })
+    router.push('/')
   }, [userId])
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -33,7 +35,6 @@ export default function SignInPage() {
       .then((result) => {
         if (result.status === 'complete') {
           setActive({ session: result.createdSessionId })
-          createUser.mutate({ name: firstName, email: emailAddress })
         } else {
           console.log(result)
         }
